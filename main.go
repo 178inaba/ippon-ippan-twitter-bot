@@ -1,7 +1,11 @@
 package main
 
 import (
+	"image"
+	"image/draw"
+	"image/png"
 	"log"
+	"os"
 	"time"
 
 	"github.com/sclevine/agouti"
@@ -28,7 +32,34 @@ func main() {
 	}
 
 	time.Sleep(time.Second)
-	if err := p.Screenshot("image.png"); err != nil {
+
+	filename := "/tmp/ss.png"
+	if err := p.Screenshot(filename); err != nil {
+		log.Fatal(err)
+	}
+
+	// Crop
+	f, err := os.Open(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	img, _, err := image.Decode(f)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	dst := image.NewRGBA(image.Rect(0, 0, 980, 480))
+	draw.Draw(dst, dst.Bounds(), img, image.Pt(310, 430), draw.Src)
+
+	dstFile, err := os.Create("/tmp/dst.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer dstFile.Close()
+
+	if err := png.Encode(dstFile, dst); err != nil {
 		log.Fatal(err)
 	}
 }
