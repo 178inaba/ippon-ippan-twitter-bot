@@ -11,7 +11,7 @@ func main() {
 	log.SetFlags(log.Lshortfile)
 
 	wd := agouti.ChromeDriver(
-		agouti.ChromeOptions("args", []string{"headless", "disable-gpu"}),
+		agouti.ChromeOptions("args", []string{"headless"}),
 	)
 	if err := wd.Start(); err != nil {
 		log.Fatal(err)
