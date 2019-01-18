@@ -11,7 +11,7 @@ func main() {
 	log.SetFlags(log.Lshortfile)
 
 	wd := agouti.ChromeDriver(
-		agouti.ChromeOptions("args", []string{"headless"}),
+		agouti.ChromeOptions("args", []string{"no-sandbox", "force-device-scale-factor=2", "headless"}),
 	)
 	if err := wd.Start(); err != nil {
 		log.Fatal(err)
