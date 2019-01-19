@@ -1,13 +1,18 @@
 package main
 
 import (
+	"bytes"
+	"encoding/base64"
+	"fmt"
 	"image"
 	"image/draw"
 	"image/png"
 	"log"
+	"net/url"
 	"os"
 	"time"
 
+	"github.com/ChimeraCoder/anaconda"
 	"github.com/sclevine/agouti"
 )
 
@@ -50,16 +55,32 @@ func main() {
 		log.Fatal(err)
 	}
 
-	dst := image.NewRGBA(image.Rect(0, 0, 980, 480))
+	dst := image.NewRGBA(image.Rect(0, 0, 980, 540))
 	draw.Draw(dst, dst.Bounds(), img, image.Pt(310, 430), draw.Src)
 
-	dstFile, err := os.Create("/tmp/dst.png")
+	b := bytes.NewBuffer(nil)
+	if err := png.Encode(b, dst); err != nil {
+		log.Fatal(err)
+	}
+
+	// Post twitter
+	api := anaconda.NewTwitterApiWithCredentials(
+		os.Getenv("ACCESS_TOKEN"),
+		os.Getenv("ACCESS_TOKEN_SECRET"),
+		os.Getenv("CONSUMER_KEY"),
+		os.Getenv("CONSUMER_SECRET"))
+
+	m, err := api.UploadMedia(base64.StdEncoding.EncodeToString(b.Bytes()))
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer dstFile.Close()
 
-	if err := png.Encode(dstFile, dst); err != nil {
+	v := url.Values{}
+	v.Set("media_ids", m.MediaIDString)
+	t, err := api.PostTweet("#IPPON", v)
+	if err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Println(t.Id)
 }
