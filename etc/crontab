@@ -1,0 +1,4 @@
+SHELL=/bin/sh
+PATH=/go/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+*/10 * * * * root app
