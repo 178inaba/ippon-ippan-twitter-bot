@@ -85,6 +85,6 @@ func main() {
 
 		fmt.Println(t.Id)
 
-		time.Sleep(time.Minute)
+		time.Sleep(time.Hour - time.Second)
 	}
 }
