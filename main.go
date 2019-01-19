@@ -32,55 +32,59 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := p.Navigate("https://s1.fujitv.co.jp/safe/ippon/judgement/index.html"); err != nil {
-		log.Fatal(err)
-	}
-
-	time.Sleep(time.Second)
-
-	filename := "/tmp/ss.png"
-	if err := p.Screenshot(filename); err != nil {
-		log.Fatal(err)
-	}
-
-	// Crop
-	f, err := os.Open(filename)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
-
-	img, _, err := image.Decode(f)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	dst := image.NewRGBA(image.Rect(0, 0, 980, 540))
-	draw.Draw(dst, dst.Bounds(), img, image.Pt(310, 430), draw.Src)
-
-	b := bytes.NewBuffer(nil)
-	if err := png.Encode(b, dst); err != nil {
-		log.Fatal(err)
-	}
-
-	// Post twitter
 	api := anaconda.NewTwitterApiWithCredentials(
 		os.Getenv("ACCESS_TOKEN"),
 		os.Getenv("ACCESS_TOKEN_SECRET"),
 		os.Getenv("CONSUMER_KEY"),
 		os.Getenv("CONSUMER_SECRET"))
 
-	m, err := api.UploadMedia(base64.StdEncoding.EncodeToString(b.Bytes()))
-	if err != nil {
-		log.Fatal(err)
-	}
+	for {
+		if err := p.Navigate("https://s1.fujitv.co.jp/safe/ippon/judgement/index.html"); err != nil {
+			log.Fatal(err)
+		}
 
-	v := url.Values{}
-	v.Set("media_ids", m.MediaIDString)
-	t, err := api.PostTweet("#IPPON", v)
-	if err != nil {
-		log.Fatal(err)
-	}
+		time.Sleep(time.Second)
 
-	fmt.Println(t.Id)
+		filename := "/tmp/ss.png"
+		if err := p.Screenshot(filename); err != nil {
+			log.Fatal(err)
+		}
+
+		// Crop
+		f, err := os.Open(filename)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer f.Close()
+
+		img, _, err := image.Decode(f)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		dst := image.NewRGBA(image.Rect(0, 0, 980, 540))
+		draw.Draw(dst, dst.Bounds(), img, image.Pt(310, 430), draw.Src)
+
+		b := bytes.NewBuffer(nil)
+		if err := png.Encode(b, dst); err != nil {
+			log.Fatal(err)
+		}
+
+		// Post twitter
+		m, err := api.UploadMedia(base64.StdEncoding.EncodeToString(b.Bytes()))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		v := url.Values{}
+		v.Set("media_ids", m.MediaIDString)
+		t, err := api.PostTweet("#IPPON", v)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println(t.Id)
+
+		time.Sleep(time.Minute)
+	}
 }

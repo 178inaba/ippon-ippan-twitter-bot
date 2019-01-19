@@ -3,7 +3,7 @@ FROM golang
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
 	&& echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
 	&& apt-get update \
-	&& apt-get install -y --no-install-recommends cron google-chrome-stable unzip \
+	&& apt-get install -y --no-install-recommends google-chrome-stable unzip \
 	&& rm /etc/apt/sources.list.d/google-chrome.list \
 	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
@@ -22,6 +22,4 @@ COPY . .
 RUN go get -d -v ./...
 RUN go install -v ./...
 
-RUN mv etc/crontab /etc/crontab
-
-CMD ["cron", "-f"]
+CMD ["app"]
